@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Aura Goals | To Do List</title>
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css" />
+    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <script>
+        function triggerPDF() {
+            const listElement = document.getElementById('goal-list');
+            const pdfView = document.createElement('div');
+            pdfView.style.padding = "40px";
+            pdfView.style.color = "#000000";
+            pdfView.style.background = "#ffffff";
+            pdfView.style.fontFamily = "'Plus Jakarta Sans', sans-serif";
+
+            const header = document.createElement('h1');
+            header.innerText = "TO DO LIST";
+            header.style.textAlign = "center";
+            header.style.letterSpacing = "4px";
+            header.style.color = "#1e1b4b";
+            header.style.borderBottom = "3px solid #818cf8";
+            header.style.paddingBottom = "15px";
+            header.style.marginBottom = "30px";
+            pdfView.appendChild(header);
+
+            const goals = listElement.querySelectorAll('.goal-item');
+            goals.forEach(goal => {
+                const cleanItem = document.createElement('div');
+                cleanItem.style.marginBottom = "15px";
+                cleanItem.style.padding = "10px";
+                cleanItem.style.borderBottom = "1px solid #eee";
+
+                const dateText = goal.querySelector('.date-badge').innerText.replace(/\s+/g, ' ').trim();
+                const titleText = goal.querySelector('.goal-title').innerText;
+                const timeText = goal.querySelector('.goal-target-time').innerText;
+                const completed = goal.classList.contains('completed-task') ? " [DONE]" : "[ ]";
+
+                cleanItem.innerHTML = `
+                    <div style="font-size:12px; color:#818cf8; font-weight:800;">${dateText} • ${timeText}</div>
+                    <div style="font-size:16px; font-weight:800;">${completed} ${titleText}</div>
+                `;
+                pdfView.appendChild(cleanItem);
+            });
+
+            html2pdf().set({ margin: 10, filename: 'To_Do_List.pdf' }).from(pdfView).save();
+        }
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;400;800&display=swap');
+        :root { --accent: #818cf8; --success: #10b981; --danger: #ef4444; --glass: rgba(255, 255, 255, 0.02); }
+
+        body, html { 
+            margin: 0; padding: 0; height: 100vh; background: #020617; color: white; 
+            font-family: 'Plus Jakarta Sans', sans-serif; display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+        }
+
+        .bg-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 10% 90%, #1e1b4b 0%, #020617 100%); z-index: -1; }
+        .dashboard { display: grid; grid-template-columns: 1fr 1.8fr; gap: 50px; width: 95%; max-width: 1200px; height: 85vh; }
+        
+        .glass-panel { background: var(--glass); backdrop-filter: blur(50px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 40px; padding: 35px; display: flex; flex-direction: column; box-shadow: 0 40px 100px rgba(0,0,0,0.5); }
+        .board-title { font-size: 1.5rem; font-weight: 800; letter-spacing: 4px; text-transform: uppercase; color: var(--accent); margin-bottom: 25px; border-left: 4px solid var(--accent); padding-left: 15px; }
+
+        .input-stack { display: flex; flex-direction: column; gap: 15px; margin-bottom: 25px; }
+        
+        .icon-input-wrapper { position: relative; display: flex; align-items: center; flex: 1; cursor: pointer; }
+        .icon-input-wrapper svg { 
+            position: absolute; left: 15px; width: 20px; height: 20px; 
+            color: var(--accent); opacity: 0.8; 
+            z-index: 2; pointer-events: none; 
+        }
+        
+        input { 
+            width: 100%; padding: 15px 15px 15px 45px; 
+            border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); 
+            background: rgba(0,0,0,0.4); color: white; outline: none; 
+            box-sizing: border-box; cursor: pointer;
+        }
+
+        input::-webkit-calendar-picker-indicator {
+            position: absolute;
+            left: 0; top: 0; width: 100%; height: 100%;
+            margin: 0; padding: 0; cursor: pointer;
+            opacity: 0;
+        }
+
+        .add-btn { background: var(--accent); color: white; border: none; padding: 16px; border-radius: 15px; font-weight: 800; cursor: pointer; transition: 0.3s; }
+        .pdf-btn { background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 12px; border-radius: 15px; font-weight: 800; cursor: pointer; margin-top: 15px; width: 100%; font-size: 0.8rem; }
+
+        #goal-list { flex: 1; overflow-y: auto; margin-top: 10px; padding-right: 10px; }
+        .goal-item { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; margin-bottom: 12px; display: flex; align-items: center; min-height: 80px; }
+        
+        .completed-task { opacity: 0.4; background: rgba(16, 185, 129, 0.05); }
+        .completed-task .goal-title { text-decoration: line-through; }
+
+        .date-badge { background: var(--accent); width: 70px; height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 800; border-radius: 20px 0 0 20px; }
+        .goal-content { flex: 1; padding-left: 20px; }
+        
+        .meta-line { display: flex; align-items: center; gap: 5px; color: var(--accent); font-size: 0.8rem; font-weight: 600; margin-top: 4px; }
+        .meta-line svg { width: 14px; height: 14px; }
+
+        /* Actions Container */
+        .actions-wrapper { display: flex; align-items: center; gap: 10px; margin-right: 20px; }
+
+        .done-trigger {
+            background: rgba(16, 185, 129, 0.1); border: 2px solid var(--success); color: var(--success);
+            padding: 8px 18px; border-radius: 12px; font-weight: 800; font-size: 0.7rem;
+            cursor: pointer; transition: 0.2s;
+        }
+        .done-trigger:hover { background: var(--success); color: #020617; }
+
+        .remove-trigger {
+            background: rgba(239, 68, 68, 0.1); border: 2px solid var(--danger); color: var(--danger);
+            padding: 8px 12px; border-radius: 12px; font-weight: 800; font-size: 0.7rem;
+            cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 5px;
+        }
+        .remove-trigger:hover { background: var(--danger); color: white; }
+    </style>
+</head>
+<body>
+    <div class="bg-layer"></div>
+    <div class="dashboard">
+        <div class="time-panel">
+            <h1 id="clock" style="font-size: 7rem; font-weight: 800; margin:0; letter-spacing: -5px;">00:00</h1>
+            <div id="date-full" style="opacity:0.5; letter-spacing:3px; text-transform: uppercase;">DATE</div>
+        </div>
+        <div class="glass-panel">
+            <div class="board-title">To Do List</div>
+            <div class="input-stack">
+                <input type="text" id="goal_in" placeholder="What is the task?" style="padding-left: 20px;">
+                
+                <div style="display:flex; gap:10px;">
+                    <div class="icon-input-wrapper">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></svg>
+                        <input type="date" id="date_in">
+                    </div>
+                    
+                    <div class="icon-input-wrapper">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <input type="time" id="time_in">
+                    </div>
+                </div>
+                
+                <button class="add-btn" id="activate_btn">ADD TASK</button>
+            </div>
+
+            <div id="goal-list"></div>
+            
+            <button class="pdf-btn" id="download_btn">DOWNLOAD PDF REPORT</button>
+        </div>
+    </div>
+
+    <script type="py">
+        from pyscript import document, window
+        from datetime import datetime
+        import json
+        from pyodide.ffi import create_proxy
+
+        DB_KEY = "aura_icons_interactive_v1"
+
+        def update_clock():
+            now = datetime.now()
+            document.getElementById("clock").innerText = now.strftime("%H:%M")
+            document.getElementById("date-full").innerText = now.strftime("%B %d, %Y")
+
+        def load_goals():
+            raw = window.localStorage.getItem(DB_KEY)
+            return json.loads(raw) if raw else []
+
+        def save_goals(goals):
+            window.localStorage.setItem(DB_KEY, json.dumps(goals))
+
+        def refresh_ui():
+            container = document.getElementById("goal-list")
+            container.innerHTML = ""
+            goals = load_goals()
+
+            for idx, i in enumerate(goals):
+                is_done = i.get('done', False)
+                dt_obj = datetime.strptime(i['date'], '%Y-%m-%d')
+                item = document.createElement("div")
+                item.className = f"goal-item {'completed-task' if is_done else ''}"
+                
+                btn_done = """<span class="done-label" style="color:#10b981; font-weight:800; font-size:0.7rem;">✓ DONE</span>""" if is_done else f"""<button class="done-trigger" id="done-{idx}">DONE</button>"""
+                
+                item.innerHTML = f"""
+                    <div class="date-badge">
+                        <span style="font-size: 0.6rem; opacity:0.8;">{dt_obj.strftime('%b')}</span>
+                        <span style="font-size: 1.3rem;">{dt_obj.strftime('%d')}</span>
+                    </div>
+                    <div class="goal-content">
+                        <span class="goal-title" style="font-size: 1.1rem; font-weight:800; color:white;">{i['text']}</span>
+                        <div class="meta-line">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            <span class="goal-target-time">{i['time']}</span>
+                        </div>
+                    </div>
+                    <div class="actions-wrapper">
+                        {btn_done}
+                        <button class="remove-trigger" id="remove-{idx}">
+                            <svg style="width:14px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                        </button>
+                    </div>
+                """
+                container.appendChild(item)
+                
+                # Logic for Done
+                if not is_done:
+                    def make_done(idx=idx):
+                        goals = load_goals()
+                        goals[idx]['done'] = True
+                        save_goals(goals)
+                        refresh_ui()
+                    document.getElementById(f"done-{idx}").onclick = create_proxy(lambda e, i=idx: make_done(i))
+                
+                # Logic for Remove
+                def make_remove(idx=idx):
+                    goals = load_goals()
+                    goals.pop(idx)
+                    save_goals(goals)
+                    refresh_ui()
+                document.getElementById(f"remove-{idx}").onclick = create_proxy(lambda e, i=idx: make_remove(i))
+
+        def add_goal(event):
+            txt, dt, tm = document.getElementById("goal_in").value, document.getElementById("date_in").value, document.getElementById("time_in").value
+            if txt and dt and tm:
+                goals = load_goals()
+                goals.append({"text": txt, "date": dt, "time": tm, "done": False})
+                save_goals(goals)
+                document.getElementById("goal_in").value = ""
+                refresh_ui()
+
+        document.getElementById("activate_btn").onclick = create_proxy(add_goal)
+        document.getElementById("download_btn").onclick = create_proxy(lambda e: window.triggerPDF())
+
+        update_clock()
+        refresh_ui()
+    </script>
+</body>
+</html>
